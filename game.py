@@ -1,11 +1,18 @@
 import random 
 import tkinter as tk
 
+item_on_color = 'black'
+item_off_color = 'white'
+
+world_size = 100
+field_size = 5
+
 class GameOfLife:
     def __init__(self, window, canvas, field_size):
-        self.X = self.Y = 80
+        self.X = self.Y = world_size
         self.board = [[0,] * self.Y for _ in range (self.X)]
         self.board2 = [[0,] * self.Y for _ in range (self.X)]
+        self.rect_ids = [[0,] * self.Y for _ in range (self.X)]
         self.canvas = canvas
         self.window = window
         self.field_size = field_size
@@ -15,6 +22,8 @@ class GameOfLife:
         for x in range (self.X):
             for y in range (self.Y):
                 self.board[x][y] = 1 if random.random() > 0.5 else 0
+                color = item_on_color if self.board[x][y] == 1 else item_off_color
+                self.rect_ids[x][y] = self.canvas.create_rectangle(x * self.field_size, y * self.field_size, x * self.field_size + self.field_size, y * self.field_size + self.field_size, fill = color)
 
     def count_neighbours(self, x, y):
         xb, yb, xe, ye = max(x-1, 0), max(y-1, 0), min(x+1, self.X-1), min(y+1, self.Y-1)
@@ -40,8 +49,8 @@ class GameOfLife:
     def display(self):
         for x in range(self.X):
             for y in range(self.Y):
-                color = 'black' if self.board[x][y] == 1 else 'white'
-                self.canvas.create_rectangle(x * self.field_size, y * self.field_size, x * self.field_size + self.field_size, y * self.field_size + self.field_size, fill = color)
+                color = item_on_color if self.board[x][y] == 1 else item_off_color
+                self.canvas.itemconfigure(self.rect_ids[x][y], fill = color)
         self.window.update_idletasks()
     
     def evolve(self):
@@ -53,13 +62,13 @@ class GameOfLife:
 def createCanvas():
     window = tk.Tk()
     window.title("Game of life")
-    canvas = tk.Canvas(window, width = 800, height = 800, bg = 'white')  
+    canvas = tk.Canvas(window, width = world_size * field_size, height = world_size * field_size, bg = item_off_color)  
     canvas.pack()                
     return window, canvas
 
 window, canvas = createCanvas()
 
-game = GameOfLife(window, canvas, 10)
+game = GameOfLife(window, canvas, field_size)
 
 game.evolve()
 
